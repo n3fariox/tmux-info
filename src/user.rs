@@ -1,7 +1,8 @@
-use libc::{getpwuid_r, getuid, passwd};
-use std::ffi::CStr;
-
+#[cfg(unix)]
 pub fn get_username() -> String {
+    use libc::{getpwuid_r, getuid, passwd};
+    use std::ffi::CStr;
+
     unsafe {
         let uid = getuid();
         let mut pwd: passwd = std::mem::zeroed();
@@ -24,4 +25,9 @@ pub fn get_username() -> String {
             .to_string_lossy()
             .into_owned()
     }
+}
+
+#[cfg(windows)]
+pub fn get_username() -> String {
+    std::env::var("USERNAME").unwrap_or_else(|_| "unknown".into())
 }

@@ -1,7 +1,8 @@
-use libc::gethostname;
-use std::ffi::CStr;
-
+#[cfg(unix)]
 pub fn get_hostname() -> String {
+    use libc::gethostname;
+    use std::ffi::CStr;
+
     let mut buf = vec![0u8; 256];
     let ret = unsafe { gethostname(buf.as_mut_ptr() as *mut i8, buf.len()) };
 
@@ -19,4 +20,9 @@ pub fn get_hostname() -> String {
         Some((short, _)) => short.to_string(),
         None => hostname,
     }
+}
+
+#[cfg(windows)]
+pub fn get_hostname() -> String {
+    std::env::var("COMPUTERNAME").unwrap_or_else(|_| "unknown".into())
 }
